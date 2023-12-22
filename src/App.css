@@ -5,7 +5,15 @@
 
 .card {
     margin-top: -8vh;
-    width:80%;
+    min-width:75vw;
+    width:75vw;
+    max-width:75vw;
+}
+
+.card-data {
+    font-size: 18px;
+    font-weight: 700;
+    overflow-wrap: break-word;
 }
 
 .header-bg-img {
