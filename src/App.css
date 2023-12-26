@@ -23,6 +23,13 @@
     overflow-wrap: break-word;
 }
 
+.input-group .input-group-text {
+    background-color: black;
+}
+.input-group .input-group-text:hover {
+    background-color: hsl(0, 0%, 25%);
+}
+
 .input-group .form-control:focus {
     border-color: transparent;
     outline: 0;

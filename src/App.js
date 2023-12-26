@@ -11,6 +11,9 @@ function App() {
   const [isLoading, setLoading] = useState(false);
   const [marker, setMarker] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [validationError, setValidationError] = useState("");
+  const ipAddressRegex =  /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  const domainNameRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
 
   useEffect(() => {
     if(!ipData){
@@ -18,21 +21,28 @@ function App() {
     }
   },[ipData, setIpData]);
 
+  const handleChange = (event) => {
+    setValidationError("")
+    setIpQuery(event.target.value)
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
     if(ipQuery){
-      let parsedQuery = ipQuery.split('.')
       let ipAddress = null;
       let domain = null;
-      if(parsedQuery.length>2) {
-        ipAddress=ipQuery
+      if(ipQuery.match(ipAddressRegex)){
+        setValidationError("")
+        ipAddress=ipQuery;
         getIpInfo({ipAddress:ipAddress},setIpData, setLoading,setMarker,setErrorMessage)
-      }
-      else{
-        domain=ipQuery
+      } else if (ipQuery.match(domainNameRegex)){
+        setValidationError("")
+        domain=ipQuery;
         getIpInfo({domain:domain},setIpData,setLoading,setMarker,setErrorMessage);
-
+      } else {
+        setLoading(false);
+        setValidationError("IP address or domain is invalid, please check entered value and retry.");
       }
     }
     else {
@@ -48,7 +58,7 @@ function App() {
         <div className="header-bg-img text-center">
           <div className="py-3 h1" style={{color:"white"}}>IP Address Tracker</div>
           <div className='col-9 col-md-6 mx-auto'>
-          <form className="input-group mb-3 mx-auto" onSubmit={handleSubmit}>
+          <form className="input-group mx-auto" onSubmit={handleSubmit}>
             <input 
               type="text" 
               className="form-control rounded-start-4" 
@@ -56,17 +66,23 @@ function App() {
               placeholder="Search for any IP address or domain" 
               aria-label="search for ip address or domain" 
               aria-describedby="basic-addon2"
-              onChange={e =>setIpQuery(e.target.value)}
+              onChange={handleChange}
               disabled={isLoading}
-              />
+              required
+                            />
             <button 
               className="input-group-text m-0 border-0 rounded-end-4" 
               id="basic-addon2" 
-              style={{background:"black"}}
               type="submit"
               disabled={isLoading}
               ><img className={isLoading?'opacity-25':''}src={buttonImg} alt="search button"></img></button>
-          </form> 
+          </form>
+          {
+            validationError?
+            <div className="p-2 fw-bold text-left text-warning">{validationError}</div>
+            :
+            <></>
+          }
           </div>    
         </div>
       </header>
