@@ -118,7 +118,7 @@ function App() {
       <footer className="footer p-3 text-center">
       Challenge by <a 
             href="https://www.frontendmentor.io/challenges/ip-address-tracker-I8-0yYAH0" 
-            alt="frontend-mentor challenge link" 
+            alt="frontend mentor challenge link" 
             target="_blank" 
             rel="noopener noreferrer">Frontend Mentor</a>. Coded by <a href="https://github.com/snhase" alt="github url" target="_blank" rel="noopener noreferrer">snhase</a>
       </footer>
