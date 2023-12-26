@@ -1,4 +1,4 @@
-export const getIpInfo = async (data, setIpData) => {
+export const getIpInfo = async (data, setIpData, setLoading, setMarker, setErrorMessage) => {
     let url = "https://geo.ipify.org/api/v2/country,city?apiKey=at_EDgSOOvGBBNLobH5CPrahI1vGqZFz"
     if(data) {
         if(data.domain) {
@@ -14,16 +14,31 @@ export const getIpInfo = async (data, setIpData) => {
         });
 
         if(!response.ok) {
-            console.log(response)
-            if(response.status === "404"){
-                throw Error(response.status);
+            const error = await response.json();
+            setLoading(false);
+            if(error && error.messages){
+                setErrorMessage(error.messages);
             }
-            else {
-                throw Error("Network error");
-            } 
+            else{
+                setErrorMessage(response.status +"-"+ response.statusText);
+            }
+            throw Error(response.status +":"+ response.statusText);
         }
+
         const data = await response.json();
-        setIpData(data);
+
+        if(data) {
+            setIpData(data);
+            setLoading(false);
+            setErrorMessage("");
+            setMarker([data.location?data.location.lat:"" , data.location?data.location.lng:""]);
+        }
+        else{
+            setLoading(false);
+            setErrorMessage("No data returned, retry or contact support if error persists");
+            throw Error("No data returned..."+response.status +":"+ response.statusText);
+        }
+
     } catch (error) {
         console.log(error);
     }
