@@ -16,30 +16,39 @@ function App() {
   const domainNameRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
 
   useEffect(() => {
-    if(!ipData){
-      getIpInfo(null,setIpData,setLoading,setMarker,setErrorMessage)
-    }
-  },[ipData, setIpData]);
+    getIpData(null,"user")
+  },[]);
 
   const handleChange = (event) => {
     setValidationError("")
     setIpQuery(event.target.value)
   }
 
+  const getIpData = (query,key) => {
+    let cachedIP = sessionStorage.getItem(key);
+    if(!cachedIP){
+      getIpInfo(query,setIpData, setLoading,setMarker,setErrorMessage)
+    }
+    else{
+      let cachedJson = JSON.parse(cachedIP);
+      if(cachedJson.ip !== ipData.ip) {
+        setIpData(cachedJson);
+        setMarker([cachedJson.location?cachedJson.location.lat:"" , cachedJson.location?cachedJson.location.lng:""]);
+      }
+      setLoading(false);
+    }
+  }
+
   const handleSubmit = (event) => {
     event.preventDefault();
     setLoading(true);
     if(ipQuery){
-      let ipAddress = null;
-      let domain = null;
       if(ipQuery.match(ipAddressRegex)){
         setValidationError("")
-        ipAddress=ipQuery;
-        getIpInfo({ipAddress:ipAddress},setIpData, setLoading,setMarker,setErrorMessage)
+        getIpData({ipAddress:ipQuery},ipQuery)
       } else if (ipQuery.match(domainNameRegex)){
         setValidationError("")
-        domain=ipQuery;
-        getIpInfo({domain:domain},setIpData,setLoading,setMarker,setErrorMessage);
+        getIpData({domain:ipQuery},ipQuery);
       } else {
         setLoading(false);
         setValidationError("IP address or domain is invalid, please check entered value and retry.");

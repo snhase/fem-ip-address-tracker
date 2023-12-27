@@ -1,11 +1,15 @@
+const domainNameRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
 
 export const getIpInfo = async (data, setIpData, setLoading, setMarker, setErrorMessage) => {
     let url = "https://geo.ipify.org/api/v2/country,city?apiKey="+ process.env.REACT_APP_API_KEY
+    let cacheKey = "user"
     if(data) {
         if(data.domain) {
+            cacheKey=data.domain;
             url = url + "&domain=" + data.domain;
         }
         else if(data.ipAddress) {
+            cacheKey=data.ipAddress;
             url = url + "&ipAddress=" + data.ipAddress;
         }
     }
@@ -26,13 +30,17 @@ export const getIpInfo = async (data, setIpData, setLoading, setMarker, setError
             throw Error(response.status +":"+ response.statusText);
         }
 
-        const data = await response.json();
+        const responseJson = await response.json();
 
-        if(data) {
-            setIpData(data);
+        if(responseJson) {
+            setIpData(responseJson);
             setLoading(false);
             setErrorMessage("");
-            setMarker([data.location?data.location.lat:"" , data.location?data.location.lng:""]);
+            sessionStorage.setItem(cacheKey,JSON.stringify(responseJson))
+            if(cacheKey.match(domainNameRegex) || cacheKey === "user") {
+                sessionStorage.setItem(responseJson.ip,JSON.stringify(responseJson))
+            }
+            setMarker([responseJson.location?responseJson.location.lat:"" , responseJson.location?responseJson.location.lng:""]);
         }
         else{
             setLoading(false);
